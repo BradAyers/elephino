@@ -7,6 +7,8 @@ contains the code for custom plugins and themes used on this site.
 ## Installation
 
 See the README.md file in each plugin and theme directory.  Also refer to
+https://wordpress.org/support/article/managing-plugins/#installing-plugins for
+further plugin information
 
 
 ```bash
