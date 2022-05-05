@@ -30,71 +30,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 if ( ! defined( 'ABSPATH' ) ) {
  exit; // Exit if accessed directly.
 }
-
+// Include the functions.php file that contains the custom coded PDF upload functions
 include_once ( ABSPATH . 'wp-content/plugins/newsletter-upload/functions.php' );
 
 // Create DB table when plugin is activated
 register_activation_hook( __FILE__, 'elph_install' );
 
-// El_Stylo Function that applies to Upload form
-function elph_head() {
-  ?>
-  <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!-- Local Fallback -->
-    <script type="text/javascript">
-    if (typeof jQuery == 'undefined') {
-        document.write(unescape("%3Cscript src='assets/js/jquery_3.2.1_jquery.min.js' type='text/javascript'%3E%3C/script%3E"));
-    }
-    </script>
+/* Register any plugin specific scripts and styles when init hook is fired so
+they're ready for enqueue
+*/
+add_action( 'init', 'register_elph_scripts' );
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- Local Fallback -->
-    <script>
-    if (!$.fn.modal) {
-        document.write(unescape("%3Cscript src='assets/js/bootstrap_3.3.7.min.js' type='text/javascript'%3E%3C/script%3E"));
-        document.write(unescape("%3Clink rel='stylesheet' href='assets/css/bootstrap_3.3.7.min.css' type='text/css'%3E"));
-    }
-    </script>
+// Only enqueue plugin specific scripts and styles on page load
+add_action( 'wp_enqueue_scripts', 'enqueue_scripts_onpageload');
 
-    <!-- Datepicker -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <!-- Local Fallback -->
-    <script>
-    if (!$('#user-date').data('datepicker')) {
-        document.write(unescape("%3Cscript src='assets/js/bootstrap-datepicker_1.9.0.min.js' type='text/javascript'%3E%3C/script%3E"));
-        document.write(unescape("%3Clink rel='stylesheet' href='assets/css/bootstrap-datepicker_1.9.0.min.css' type='text/css'%3E"));
-    }
-    </script>
-
-    <!-- Google Icons (Remove these if not using) -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Indie+Flower&display=swap" rel="stylesheet">
-
-    <!-- Local style and script -->
-    <link rel="stylesheet" href="http://localhost/mysites/index/css/style.css"/>
-    <script type="text/javascript" src="assets/js/script.js"></script>
-  <?php
-}
-
-add_action( 'wp_head', 'elph_head' );
-
-
-function elph_news_load() {
-
-
-
-
-
-
-  include_once 'includes/elph_upload_form.php';
-  //return "<h2>Otra vez, por favor!</h2>";
-}
+/* Add "Upload News" to WP Dashboard for manually uploading newsletters,
+making changes to newsletter accounts, and whatever else this evolves to be */
+add_action('admin_menu', 'elph_upload_admin');
 
 // Add shortcode to insert upload form in page
 add_shortcode('elph_news_upload', 'elph_news_load');
+
+// THis is just ot test AJAS
+add_action( 'wp_ajax_my_action', 'my_action' );
+add_action( 'wp_ajax_nopriv_my_action', 'my_action' );
+
+add_action('wp_head', 'myplugin_ajaxurl');
+
+function myplugin_ajaxurl() {
+
+   echo '<script type="text/javascript">
+           var ajaxurl = "' . admin_url('admin-ajax.php') . '";
+         </script>';
+}
