@@ -1,7 +1,10 @@
 <?php
 
-/* Create DB table for this plugin (is this firing every time?  I may need to
-/* place it in a conditional that only executes if there is not table) */
+/**
+ * Create DB table for this plugin (is this firing every time?  I may need to
+ * place it in a conditional that only executes if there is not table). Also, can
+ * this code be placed in an "install.php" file to only be called on install?
+ */
 global $elph_db_version;
 $elph_db_version = '1.0';
 
@@ -37,6 +40,10 @@ function elph_install() {
   }
 }
 
+/**
+ * Functions to register then enqueue all the plugin specific scripts.
+ */
+
 // Function to register plugin specific styles & scripts when init fired
 function register_elph_scripts() {
   // register CSS
@@ -50,7 +57,7 @@ function register_elph_scripts() {
   // register JS
   wp_register_script( 'bootstrap_script', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'); // Bootstrap JS
   wp_register_script( 'datepicker_script', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js'); // Datepicker JS
-  wp_register_script( 'ajax_script', plugins_url( '/ajax_script.js', __FILE__ ) ); // AJAX JS
+  wp_register_script( 'ajax_script', plugins_url( '/ajax_script.js', __FILE__ ), '', false, true ); // AJAX JS
 }
 
 // Function to enqueue plugin specific styles and scripts when plugin page is loaded
@@ -68,61 +75,77 @@ function enqueue_scripts_onpageload() {
     // enqueue JS
     wp_enqueue_script( 'bootstrap_script' ); // Bootstrap JS
     wp_enqueue_script( 'datepicker_script' ); // Datepicker JS
-    wp_enqueue_script( 'ajax_script', $in_footer = true ); // Ajax JS
+    wp_enqueue_script( 'ajax_script' ); // Ajax JS
   }
 }
 
-// When shortcode 'elph_news_upload' is called this function ads upload form
+// When shortcode 'elph_news_upload' is called this function adds upload form
 function elph_news_load() {
   include_once( ABSPATH . 'wp-content/plugins/newsletter-upload/includes/elph_upload_form.php' );
 }
 
-// Adds "Upload News" admin page to WP Dashboard
+/**
+ * Admin functions for the WP Dashboard
+ */
+
 function elph_upload_admin() {
-  add_menu_page( 'Upload News', 'Upload News', 'manage_options', 'pdf-upload', 'test_init' );
+  add_menu_page( 'Upload News', 'Upload News', 'manage_options', 'pdf-upload', 'elph_admin_page' );
 }
 
-// Functions below add the Upload News functionality to the WP Dashboard
-function test_init(){
-    test_handle_post();
-?>
+//
+function elph_admin_page() {
+    elph_handle_post();
+    ?>
     <h2>Upload PDF Newsletter</h2>
     <!-- Form to handle the upload - The enctype value here is very important -->
     <form  method="post" enctype="multipart/form-data">
-        <input type='file' id='test_upload_pdf' name='test_upload_pdf' />
+        <input type='file' id='elph_upload_pdf' name='elph_upload_pdf' />
         <input type='submit' value='Upload PDF Newsletter' />
     </form>
-<?php
+    <?php
 }
 
-function test_handle_post(){
+function elph_handle_post() {
     // First check if the file appears on the _FILES array
-    if(isset($_FILES['test_upload_pdf'])){
-        $pdf = $_FILES['test_upload_pdf'];
+    if ( isset( $_FILES['elph_upload_pdf'] ) ) {
+        $pdf = $_FILES['elph_upload_pdf'];
 
-        /*Use the wordpress function to upload
-        * test_upload_pdf corresponds to the position in the $_FILES array
-        * 0 means the content is not associated with any other posts
-        */
-        $uploaded=media_handle_upload('test_upload_pdf', 0);
+        /**
+         * Use the Wordpress function to upload
+         * elph_upload_pdf corresponds to the position in the $_FILES array
+         * 0 means the content is not associated with any other posts
+         */
+        $uploaded=media_handle_upload('elph_upload_pdf', 0);
         // Error checking using WP functions
-        if(is_wp_error($uploaded)){
+        if (is_wp_error($uploaded)){
             echo "Error uploading file: " . $uploaded->get_error_message();
-        }else{
+        } else {
             echo "File upload successful!";
         }
     }
 }
-// Functions above add the Upload News functionality to the WP Dashboard
 
-// THis is just ot test AJAS
-function my_action() {
-  echo 'Ajax call output:';
+/** This is just to test AJAX */
+// Add WP Ajax
+function elph_ajaxurl() {
+   echo '<script type="text/javascript">
+           var ajaxurl = "' . admin_url('admin-ajax.php') . '";
+         </script>';
+}
 
-  echo '<pre>';
-  var_dump($_POST);
-  echo "<script>console.log('Don\'t fight it and make yourself at home ...');</script>";
-  echo '</pre>';
-
+function test_action() {
+  ?>
+  <script>
+    console.log('Hello mundo');
+  </script>
+  <?php
   wp_die();
 }
+/* /This is just to test AJAX */
+
+
+
+/**
+ * Functions that could be loaded after "Upload" is clicked and may want to move
+ * these to a separate file i.e "upload_functions"
+ */
