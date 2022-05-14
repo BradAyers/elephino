@@ -28,8 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Define Path to Plugin Directory
 if ( ! defined( 'ABSPATH' ) ) {
- exit; // Exit if accessed directly.
+    exit; // Exit if accessed directly.
 }
+
 
 /**
  * Include the functions.php file that contains the custom coded PDF upload
@@ -43,30 +44,65 @@ include_once ( ABSPATH . 'wp-content/plugins/newsletter-upload/functions.php' );
 register_activation_hook( __FILE__, 'elph_install' );
 
 /**
- * Register any plugin specific scripts and styles when init hook is fired so
- * they're ready for enqueue
+ * Enqueue plugin specific scripts and styles
  */
-add_action( 'init', 'register_elph_scripts' );
-
-// Only enqueue plugin specific scripts and styles on page load
-add_action( 'wp_enqueue_scripts', 'enqueue_scripts_onpageload');
+add_action( 'wp_enqueue_scripts', 'elph_enqueue_scripts');
 
 /**
  * Add "Upload News" to WP Admin Dashboard for manually uploading newsletters,
  * making changes to newsletter accounts, and whatever else this evolves to be.
  */
-add_action('admin_menu', 'elph_upload_admin');
+add_action( 'admin_menu', 'elph_upload_admin' );
 
-// Add shortcode to insert upload form in page
-add_shortcode('elph_news_upload', 'elph_news_load');
+/**
+   * Add [elph_news_upload] shortcode to insert upload form in page
+ */
+add_shortcode( 'elph_news_upload', 'elph_news_load' );
 
 
 
 
 
-/** This is just to test AJAX */
-add_action( 'wp_ajax_test_action', 'test_action' );
-add_action( 'wp_ajax_nopriv_test_action', 'test_action' );
+/* This is just to test AJAX */
+//add_action( 'wp_ajax_elph_upload_handler', 'my_enqueue' );
+//add_action( 'wp_ajax_nopriv_elph_upload_handler', 'my_enqueue' );
 
-add_action('wp_head', 'elph_ajaxurl');
-/* /This is just to test AJAX */
+//add_action('wp_head', 'elph_ajaxurl');
+/*This is just to test AJAX */
+
+/**
+ * Enqueue AJAX script, may need to fold this into other enque rather than have
+ * a separate function for this
+ */
+
+function elph_enqueue_ajax_script() {
+    wp_enqueue_script(
+        'elph-ajax',
+        plugins_url( '/includes/elph-ajax.js', __FILE__ ),
+        array( 'jquery' ),
+        '1.0.0',
+        true
+    );
+
+    $elph_nonce = wp_create_nonce( 'elph_nonce' );
+
+    wp_localize_script(
+        'ajax-script',
+        'my_ajax_obj',
+        array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce'    => $elph_nonce,
+        )
+    );
+}
+
+add_action( 'wp_enqueue_scripts', 'elph_enqueue_ajax_script' );
+
+function elph_upload($data) {
+    $month = $_POST['month'];
+    $year =  $_POST['year'];
+
+    wp_send_json( esc_html( $month ) );
+}
+
+add_action( 'wp_ajax_elph_upload', 'elph_enqueue_ajax_script' );

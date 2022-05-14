@@ -1,0 +1,70 @@
+input#email {
+  display:none; /*  security alternative  */
+}
+
+/* Create Some Spacing */
+div#preview {
+  margin: 2em 0 1em 0;
+}
+
+/* Line up svg image with text on Yorg tabs and adjust <h1> height */
+.flex {
+  display: inline-flex;
+  line-height: 1.3 !important;
+  color: #29AB87 !important;
+  font-size: 2em;
+  font-weight: bold;
+  padding-bottom: 1.5em;
+}
+
+/* Choose File button */
+#uploadPDFnews {
+  padding-top: 1.5em;
+}
+
+/* Datepicker */
+.glyphicon {
+  color: #29AB87;
+}
+
+/* Calendar Styles */
+.datepicker table tr td.highlighted {
+  background: rgb(41,171,135, 0.3); /*#29AB87#87A4A4*/
+}
+
+.datepicker table tr td.today {
+  background: rgb(41,171,135, 0.8);
+}
+
+.datepicker table tr td.today:hover:hover {
+  background: #87A4A4;
+}
+
+.datepicker table tr td.active.active {
+  background-color: green;
+}
+
+/* ### Input Button Style ### */
+input[type="submit"], button#cancel, button#overwrite, button#edit-profile {
+  color: #F5F5F5 !important;
+  background-color: #29AB87 !important; /*808285*/
+  border-color: #259B7B !important;
+}
+
+input[type="submit"]:hover, button#cancel:hover, button#overwrite:hover, button#edit-profile:hover {
+  background-color: #436060 !important;
+}
+
+.btn-primary {
+  border-color: #87A4A4;
+}
+
+input#overwrite, #cancel.btn, #overwrite.btn {
+  margin: 0px 10px;
+}
+
+/* Buttons for Duplicate Files are initially hidden */
+#cancel.btn, #overwrite.btn {
+  display: none;
+  margin: 0px 10px;
+}
